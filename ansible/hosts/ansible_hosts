@@ -1,0 +1,5 @@
+[all]
+34.244.178.193
+
+[workers]
+34.244.178.193 ansible_user=ubuntu

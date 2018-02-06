@@ -7,6 +7,5 @@ ansible all -m ping -i ./hosts/ansible_hosts --private-key ~/.ssh/aws.pem -u ubu
 ansible all -m ping -i ./hosts/ansible_hosts --private-key ~/.ssh/aws.pem -u ubuntu -b
 # as ubuntu, sudoing to ubuntu
 ansible all -m ping -i ./hosts/ansible_hosts --private-key ~/.ssh/aws.pem -u ubuntu --become-user ubuntu
-# user specified in hosts file
-ansible workers -m ping -i ./hosts/ansible_hosts --private-key ~/.ssh/aws.pem
-
+# user, ansible_ssh_private_key_file, ansible_python_interpreter specified in hosts file
+ansible workers -m ping -i ./hosts/ansible_hosts 

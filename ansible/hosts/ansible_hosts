@@ -1,5 +1,9 @@
-[all]
-34.244.178.193
 
 [workers]
-34.244.178.193 ansible_user=ubuntu
+34.251.33.47 ansible_user=ubuntu 
+
+[workers:vars]
+ansible_ssh_private_key_file=~/.ssh/aws.pem
+ansible_python_interpreter=/usr/bin/python3
+
+

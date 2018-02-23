@@ -1,4 +1,9 @@
 import gym
+import logging
+
+
+logger = logging.getLogger()
+
 
 class Environment:
     def __init__(self, name):
@@ -7,20 +12,27 @@ class Environment:
         pass
 
 class OpenGymEnvironment(Environment):
-    def __init__(self, name):
+    def __init__(self, name, render_on=False):
         self.name = name
         self._env = gym.make(name)
         self.reset()
+        self._render_on = render_on
     def step(self, action):
         self.observation = self._env.step(action)
+        if self._render_on:
+            self.render()
         self._state = self.observation[0]
         return self.observation
+    def render(self):
+        self._env.render()
     def reset(self):
         self._state = self._env.reset()
     @property
     def state(self):
         return self._state
 
+    def set_rendering(self, on=False):
+        self._render_on = on
     @property
     def observation_space_shape(self):
         return self._env.observation_space.shape
@@ -32,6 +44,7 @@ class Agent:
         self.env = env
     def step(self):
         action = self.select_next_action()
+        logger.debug(f'Action: {action}')
         feedback = self.do_action(action)
         self.process_feedback(feedback)
         return not self.end()
@@ -95,11 +108,10 @@ def random_weight_search(agent, environ, num_trials, num_episodes):
             steps = play_episode(ragent, environ)
             steps_list.append(steps)
         avg_steps = mean(steps_list)
-        print(avg_steps)
+        logger.info(f"Trial: {trial}")
         if avg_steps > best_avg_step_count:
             best_avg_step_count = avg_steps
             best_weights = ragent.weights
-        #print(steps_list)
     return best_avg_step_count, best_weights
 
 
@@ -109,10 +121,13 @@ def evaluate(environ, agent, weight):
 
 
 if __name__ == "__main__":
+    logger.setLevel(logging.INFO)
     env = OpenGymEnvironment('CartPole-v0')
     agent = RandomLinearAgent(env)
-    best_avg_step, best_weights = random_weight_search(agent, env, num_trials=1000, num_episodes=100)
-    print(best_avg_step, best_weights)
+    best_avg_step, best_weights = random_weight_search(agent, env, num_trials=300, num_episodes=100)
+    logger.info(best_avg_step, best_weights)
     
+    logger.setLevel(logging.DEBUG)
+    env.set_rendering(on=True)
     steps = evaluate(env, agent, best_weights) 
     print(steps)

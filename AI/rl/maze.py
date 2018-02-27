@@ -1,5 +1,6 @@
 import numpy as np
 from random import shuffle
+from collections import deque
 
 def generate_maze(maze):
     
@@ -62,7 +63,8 @@ def generate_maze(maze):
             yield f(maze, curr_pos)
 
 
-    def generate(maze, curr_pos):
+    
+    def generate_recursive(maze, curr_pos):
         maze[curr_pos] = 0
         functions = [left, right, up, down]
         shuffle(functions)
@@ -71,6 +73,23 @@ def generate_maze(maze):
             if not nb:
                 continue
             generate(maze, nb)
+    
+
+    def generate(maze, curr_pos):
+        stack = deque()
+        functions = [left, right, up, down]
+        shuffle(functions)
+        maze[curr_pos] = 0
+        for f in functions:
+            stack.append((f, curr_pos))
+        while len(stack) > 0:
+            f, curr_pos = stack.pop()
+            nb = f(maze, curr_pos)
+            if nb != None:
+                maze[nb] = 0
+                shuffle(functions)
+                for f in functions:
+                    stack.append((f, nb))
 
     height, width = maze.shape
     r = np.random.randint(1, height-1)
@@ -94,5 +113,5 @@ class Maze:
         return rep
 
 
-m = Maze(20)
+m = Maze(50)
 print(m)

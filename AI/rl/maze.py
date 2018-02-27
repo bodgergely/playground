@@ -102,16 +102,55 @@ def generate_maze(maze):
 class Maze:
     def __init__(self, size):
         self.maze = np.ones((size,size))
+        self._size = size
         generate_maze(self.maze)
+        self.special_fields = dict()
+    @property
+    def size(self):
+        return self._size
+    def is_free(self, pos):
+        return True if self.maze[pos] == 0 else False
+    def reserve_field(self, pos, num, character):
+        if not self._validate_range(pos):
+            raise Exception(f"Invalid pos: {pos} - outside of range!")
+        if not self.is_free(pos):
+            raise Exception(f"Field {pos} is already occupied!")
+
+        self.maze[pos] = int(num)
+        if pos not in self.special_fields:
+            self.special_fields[num] = character
+
+    def free_field(self, pos):
+        if not self._validate_range(pos):
+            raise Exception(f"Invalid pos: {pos} - outside of range!")
+        if self.is_free(pos):
+            raise Exception(f"Field {pos} is already free!")
+        if self.maze[pos] == 1:
+            raise Exception(f"Can not free up a wall field!")
+        
+        self.maze[pos] = 0
+
+    def _validate_range(self, pos):
+        r, c = pos
+        if r < 0 or r >= self._size or c < 0 or c >= self._size:
+            return False
+        return True
+
     def __str__(self):
         r,c = self.maze.shape
         rep = ""
         for i in range(r):
             for j in range(c):
-                rep += str(int(self.maze[i,j])) + " "
+                n = self.maze[i,j]
+                if n in self.special_fields:
+                    disp = self.special_fields[n]
+                else:
+                    disp = str(int(n))
+                rep += disp + " "
             rep += '\n'
         return rep
 
 
-m = Maze(50)
-print(m)
+if __name__ == "__main__":
+    m = Maze(30)
+    print(m)

@@ -64,7 +64,6 @@ def generate_maze(maze):
 
     def generate(maze, curr_pos):
         maze[curr_pos] = 0
-        print(str(maze))
         functions = [left, right, up, down]
         shuffle(functions)
         for f in functions:
@@ -86,8 +85,14 @@ class Maze:
         self.maze = np.ones((size,size))
         generate_maze(self.maze)
     def __str__(self):
-        return str(self.maze)
+        r,c = self.maze.shape
+        rep = ""
+        for i in range(r):
+            for j in range(c):
+                rep += str(int(self.maze[i,j])) + " "
+            rep += '\n'
+        return rep
 
 
-m = Maze(10)
+m = Maze(20)
 print(m)

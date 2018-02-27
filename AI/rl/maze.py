@@ -2,7 +2,13 @@ import numpy as np
 from random import shuffle
 
 def generate_maze(maze):
-       
+    
+    def corner_case(maze, r, c, from_r, from_c):
+        if maze[r,c] == 0:
+            if (maze[r, c-1] == 1 and maze[r+1, c] == 1) or (maze[r, c-1] == 1 and maze[r-1, c] == 1) or (maze[r, c+1] == 1 and maze[r-1, c] == 1) or (maze[r, c+1] == 1 and maze[r+1, c] == 1):
+                return True
+        return False
+
     def adjacent(maze, prev, r, c, debug=''):
         h, w = maze.shape
         for i in (-1, 0, 1):
@@ -13,10 +19,12 @@ def generate_maze(maze):
                     continue
                 if nr < 0 or nr >= h or nc < 0 or nc >= w:
                     return True
+                
                 if maze[nr, nc] == 0:
-                    if debug == 'up':
-                        print("up:", prev, r, c, nr, nc)
-                    return True
+                    if (i in (-1, 1) and j == 0) or (j in (-1,1) and i==0) and maze[nr,nc] == 0:
+                        return True
+                    elif corner_case(maze, nr, nc, r, c):
+                        return True
         return False
 
     def left(maze, pos):
@@ -49,21 +57,21 @@ def generate_maze(maze):
     def neighbors(maze, curr_pos):
         h, w = maze.shape
         nbs = []
-        functions = [left, right, up, down]
-        return list(filter(lambda x : x!=None,  [f(maze, curr_pos) for f in functions]))
+        functions = shuffle([left, right, up, down])
+        for f in functions:
+            yield f(maze, curr_pos)
 
 
     def generate(maze, curr_pos):
         maze[curr_pos] = 0
         print(str(maze))
-        nbs = neighbors(maze, curr_pos)
-        if not nbs:
-            return
-        shuffle(nbs)
-        print("neigbors: ", nbs)
-        for nb in nbs:
+        functions = [left, right, up, down]
+        shuffle(functions)
+        for f in functions:
+            nb = f(maze, curr_pos)
+            if not nb:
+                continue
             generate(maze, nb)
-            print('at: ', nb)
 
     height, width = maze.shape
     r = np.random.randint(1, height-1)
